@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizzazione dei Dati</title>
+    <!-- Aggiunta della libreria D3.js -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        /* Stile base per la tabella */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-family: Arial, sans-serif;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tabella dei Dati</h1>
+    <!-- Creazione di un elemento per la tabella -->
+    <div id="table-container"></div>
+    
+    <script>
+        // Caricamento del file CSV e creazione della tabella con D3.js
+        d3.csv("data.csv").then(data => {
+            // Seleziona il contenitore per la tabella
+            const container = d3.select("#table-container");
+            
+            // Crea la tabella
+            const table = container.append("table");
+            const thead = table.append("thead");
+            const tbody = table.append("tbody");
+            
+            // Aggiungi l'intestazione della tabella
+            thead.append("tr")
+                .selectAll("th")
+                .data(Object.keys(data[0])) // Usa le chiavi dell'oggetto come intestazioni
+                .enter()
+                .append("th")
+                .text(d => d);
+
+            // Aggiungi le righe di dati
+            data.forEach(row => {
+                const tr = tbody.append("tr");
+                Object.values(row).forEach(value => {
+                    tr.append("td").text(value);
+                });
+            });
+        }).catch(error => console.log(error));
+    </script>
+</body>
+</html>
