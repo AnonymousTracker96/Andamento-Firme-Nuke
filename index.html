@@ -3,59 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizzazione dei Dati</title>
-    <!-- Aggiunta della libreria D3.js -->
+    <title>Grafico a Barre con D3.js</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
-        /* Stile base per la tabella */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-family: Arial, sans-serif;
+        /* Stile per il grafico */
+        .bar {
+            fill: steelblue;
         }
-        th, td {
-            border: 1px solid #dddddd;
-            padding: 8px;
-            text-align: left;
+        .bar:hover {
+            fill: orange;
         }
-        th {
-            background-color: #f2f2f2;
+        .axis--x path,
+        .axis--x line {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Tabella dei Dati</h1>
-    <!-- Creazione di un elemento per la tabella -->
-    <div id="table-container"></div>
+    <h1>Grafico a Barre con D3.js</h1>
+    <svg width="600" height="400"></svg>
     
     <script>
-        // Caricamento del file CSV e creazione della tabella con D3.js
-        d3.csv("data.csv").then(data => {
-            // Seleziona il contenitore per la tabella
-            const container = d3.select("#table-container");
-            
-            // Crea la tabella
-            const table = container.append("table");
-            const thead = table.append("thead");
-            const tbody = table.append("tbody");
-            
-            // Aggiungi l'intestazione della tabella
-            thead.append("tr")
-                .selectAll("th")
-                .data(Object.keys(data[0])) // Usa le chiavi dell'oggetto come intestazioni
-                .enter()
-                .append("th")
-                .text(d => d);
+        // Dati di esempio (array di valori)
+        const data = [12, 36, 20, 15, 30, 18];
 
-            // Aggiungi le righe di dati
-            data.forEach(row => {
-                const tr = tbody.append("tr");
-                Object.values(row).forEach(value => {
-                    tr.append("td").text(value);
-                });
-            });
-        }).catch(error => console.log(error));
+        const svg = d3.select("svg");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = +svg.attr("width") - margin.left - margin.right;
+        const height = +svg.attr("height") - margin.top - margin.bottom;
+
+        // Scale per l'asse X e Y
+        const x = d3.scaleBand()
+            .range([0, width])
+            .padding(0.1);
+        
+        const y = d3.scaleLinear()
+            .range([height, 0]);
+
+        // Gruppo per le assi
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Dominio per l'asse X e Y
+        x.domain(data.map((d, i) => i));  // Usa l'indice per l'asse X
+        y.domain([0, d3.max(data)]); // Imposta il dominio dell'asse Y
+
+        // Aggiungi le barre
+        g.selectAll(".bar")
+            .data(data)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", (d, i) => x(i))  // Usa l'indice per la posizione X
+            .attr("y", d => y(d)) // Posizione Y basata sul valore
+            .attr("width", x.bandwidth()) // Larghezza della barra
+            .attr("height", d => height - y(d)); // Altezza della barra
+
+        // Aggiungi l'asse X
+        g.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).tickFormat(i => i + 1)); // Mostra gli indici +1
+
+        // Aggiungi l'asse Y
+        g.append("g")
+            .attr("class", "axis axis--y")
+            .call(d3.axisLeft(y));
     </script>
 </body>
 </html>
